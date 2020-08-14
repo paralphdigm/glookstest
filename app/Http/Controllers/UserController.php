@@ -7,6 +7,7 @@ use App\User;
 use App\Http\Requests;
 use App\Http\Resources\Users as UserResource;
 use Illuminate\Support\Facades\Hash;
+use Twilio\Rest\Client;
 
 class UserController extends Controller
 {
@@ -41,6 +42,16 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
+        /* Get credentials from .env */
+        // Phone number verification//
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $twilio->verify->v2->services($twilio_verify_sid)
+            ->verifications
+            ->create('+' . $data['mobile_number'], "sms");
+
         User::create([
                 'membership_number' => $data['membership_number'],
                 'first_name' => $data['first_name'],
@@ -61,10 +72,31 @@ class UserController extends Controller
                 'updated_by' => $data['updated_by'],
                 'deleted_by' => $data['deleted_by'],
         ])->save();
-
-        return 201;
+        
+        return null;
     }
+    public function verifyPhone(Request $request){
 
+        $data = $request->validate([
+            'verification_code' => ['required', 'numeric'],
+            'mobile_number' => ['required', 'string'],
+        ]);
+        /* Get credentials from .env */
+        $token = getenv("TWILIO_AUTH_TOKEN");
+        $twilio_sid = getenv("TWILIO_SID");
+        $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
+        $twilio = new Client($twilio_sid, $token);
+        $verification = $twilio->verify->v2->services($twilio_verify_sid)
+            ->verificationChecks
+            ->create($data['verification_code'], array('to' => $data['mobile_number']));
+        if ($verification->valid) {
+            $user = tap(User::where('mobile_number', $data['mobile_number']))->update(['verification_code_status' => 'active']);
+            /* Authenticate user */
+            Auth::login($user->first());
+            return 200;
+        }
+        return 404;
+    }
     /**
      * Display the specified resource.
      *

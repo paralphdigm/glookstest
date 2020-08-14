@@ -22,6 +22,7 @@ Route::name('user.index')->get('/users', 'UserController@index');
 Route::name('user.show')->get('/user/{id}', 'UserController@show');
 Route::name('user.store')->post('/user','UserController@store');
 Route::name('user.update')->put('/user/{id}','UserController@update');
+Route::name('user.send_verification')->put('/user/verify/{id}','UserController@send_verification');
 
 Route::name('permission.index')->get('/permissions', 'PermissionsController@index');
 Route::name('permission.show')->get('/permission/{id}', 'PermissionsController@show');
