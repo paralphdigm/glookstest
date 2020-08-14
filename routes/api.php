@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware('auth:api')->get('/users', function (Request $request) {
     return $request->user();
 });
 
@@ -23,6 +23,7 @@ Route::name('user.show')->get('/user/{id}', 'UserController@show');
 Route::name('user.store')->post('/user','UserController@store');
 Route::name('user.update')->put('/user/{id}','UserController@update');
 Route::name('user.send_verification')->put('/user/verify/{id}','UserController@send_verification');
+Route::name('user.refresh_api_token')->put('/refresh_token/{id}','UserController@update');
 
 Route::name('permission.index')->get('/permissions', 'PermissionsController@index');
 Route::name('permission.show')->get('/permission/{id}', 'PermissionsController@show');

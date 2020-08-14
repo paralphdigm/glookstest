@@ -38,3 +38,5 @@ $factory->define(User::class, function (Faker $faker) {
         'deleted_by' => $faker->text(20),
     ];
 });
+
+
