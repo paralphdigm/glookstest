@@ -3,7 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\User;
 class SecurityQuestion extends Model
 {
     protected $fillable = [
@@ -11,4 +11,9 @@ class SecurityQuestion extends Model
         'description',
 
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany('App\User');
+    }
 }

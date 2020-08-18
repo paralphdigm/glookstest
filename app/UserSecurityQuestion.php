@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserSecurityQuestions extends Model
+class UserSecurityQuestion extends Model
 {
     protected $fillable = [
         'question_id',

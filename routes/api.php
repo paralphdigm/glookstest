@@ -19,6 +19,7 @@ Route::middleware('auth:api')->get('/users', function (Request $request) {
 
 
 // USERS
+
 Route::name('user.index')->get('/users', 'UserController@index');
 Route::name('user.show')->get('/user/{id}', 'UserController@show');
 Route::name('user.store')->post('/user','UserController@store');
@@ -104,3 +105,5 @@ Route::name('user_address.showUserAddresses')->get('/user_addresses/{id}', 'User
 Route::name('user_address.store')->post('/user_address','UserAddressesController@store');
 Route::name('user_address.update')->put('/user_address/{id}','UserAddressesController@update');
 Route::name('user_address.destroy')->delete('/user_address/{id}','UserAddressesController@destroy');
+
+

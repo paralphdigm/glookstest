@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use App\User;
 use App\SecurityQuestion;
@@ -9,7 +10,7 @@ use App\UserSecurityQuestion;
 use DB;
 use App\Http\Requests;
 
-class UserSecurityQuestionsController extends Controller
+class UserSecurityQuestionsController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -18,9 +19,18 @@ class UserSecurityQuestionsController extends Controller
      */
     public function index()
     {
-        $usersecurityquestions = UserSecurityQuestion::paginate(15);
+        $usersecurityquestions = UserSecurityQuestion::all();
 
-        return response()->json($usersecurityquestions);
+        if( ! $usersecurityquestions->count() > 0)
+        {
+            return $this->respondNoRecord();
+        }
+
+        return Response::json([
+
+            'data' => $this->transformCollection($usersecurityquestions)
+
+        ],200);
     }
     
 
@@ -42,17 +52,22 @@ class UserSecurityQuestionsController extends Controller
      */
     public function store(Request $request)
     {
+        if(! $request['question_id'] or ! $request['user_id'] or ! $request['answer'])
+        {
+            return $this->respondInvalid();
+        }
         $usersecurityquestion = new UserSecurityQuestion();
         $usersecurityquestion->question_id = $request->input('question_id');
         $usersecurityquestion->user_id = $request->input('user_id');
         $usersecurityquestion->answer = $request->input('answer');
         $usersecurityquestion->save();
 
+        
         // foreach ($request->input('permission') as $key => $value) {
         //     $role->attachPermission($value);
         // }
         
-        return 201;
+        return $this->respondAccepted();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\SecurityQuestion;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -55,4 +56,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function security_questions()
+    {
+        return $this->belongsToMany('App\SecurityQuestion');
+    }
 }

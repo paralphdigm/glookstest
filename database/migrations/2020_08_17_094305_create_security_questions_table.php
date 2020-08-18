@@ -19,6 +19,14 @@ class CreateSecurityQuestionsTable extends Migration
             $table->string('description')->nullable();
             $table->timestamps();
         });
+
+        Schema::create('security_question_user', function (Blueprint $table) {
+            $table->integer('user_id');
+            $table->integer('security_question_id');
+            $table->string('answer');
+            $table->primary(['user_id', 'security_question_id']);
+            $table->timestamps();
+        });
     }
 
     /**
@@ -29,5 +37,6 @@ class CreateSecurityQuestionsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('security_questions');
+        Schema::dropIfExists('user_security_question');
     }
 }
