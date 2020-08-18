@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use App\User;
 use App\Http\Requests;
 use App\Http\Resources\Users as UserResource;
 use Illuminate\Support\Facades\Hash;
 use Twilio\Rest\Client;
+use Illuminate\Support\Facades\Auth;
 
-class UserController extends Controller
+
+class UserController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -18,9 +21,18 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(15);
+        $users = User::all();
 
-        return response()->json($users);
+        if( ! $users->count() > 0)
+        {
+            return $this->respondNoRecord();
+        }
+
+        return Response::json([
+
+            'data' => $this->transformCollection($users)
+
+        ],200);
     }
 
     /**
@@ -41,6 +53,18 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        if(! $request['first_name'] or ! 
+        $request['last_name'] or ! 
+        $request['email'] or ! 
+        $request['last_name'] or ! 
+        $request['gender'] or ! 
+        $request['mobile_number'] or ! 
+        $request['last_name'] or ! 
+        $request['landline_number'] or ! 
+        $request['marital_status'])
+        {
+            return $this->respondInvalid();
+        }
         $data = $request->all();
         /* Get credentials from .env */
         // Phone number verification//
@@ -73,7 +97,7 @@ class UserController extends Controller
                 'deleted_by' => $data['deleted_by'],
         ])->save();
         
-        return null;
+        return $this->respondAccepted();
     }
     public function verifyPhone(Request $request){
 
@@ -93,9 +117,9 @@ class UserController extends Controller
             $user = tap(User::where('mobile_number', $data['mobile_number']))->update(['verification_code_status' => 'active']);
             /* Authenticate user */
             Auth::login($user->first());
-            return 200;
+            return $this->respondAccepted();
         }
-        return 404;
+        return $this->respondInvalid();
     }
     /**
      * Display the specified resource.
@@ -106,7 +130,34 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-        return response()->json($user);
+        if(! $user){
+            return $this->respondNotFound('Record does not exist');
+
+        }
+        return Response::json([
+            'data' => $this->transform($user->toArray())
+        ],200);
+    }
+    public function login(Request $request)
+    {
+        $user = User::where('email', $request['email']);
+
+        // if($user->account_status != 'active')
+        // {
+        //     return $this->respondUnauthorized('Account not active');
+        // }
+        $data = $request->validate([
+            'email' => 'required|string',
+            'password' => 'required|string'
+        ]);
+
+        if(!Auth::attempt($data)){
+            return $this->respondUnauthorized('Invalid Login Credentials');
+        }
+        // Creating a token without scopes...
+        $accesstoken = Auth::user()->createToken('authToken')->accessToken;
+
+        return response(['user' => Auth::user(),'access_token' => $accesstoken]);
     }
 
     /**
@@ -130,7 +181,9 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         $user = User::find($id); 
-
+        if(! $user){
+            return $this->respondNotFound();
+        }
         $data = $request->all();
         $user->fill([
                 'membership_number' => $data['membership_number'],
@@ -153,7 +206,7 @@ class UserController extends Controller
                 'deleted_by' => $data['deleted_by'],
         ])->save();
 
-        return 200;
+        return $this->respondSuccess();
     }
 
     /**
@@ -165,6 +218,36 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::find($id);
-	    $user->delete();
+        if(! $user){
+            return $this->respondNotFound();
+        } 
+        $user->delete();
+        return $this->respondSuccess();
+    }
+    private function transformCollection($users)
+    {
+        return array_map([$this, 'transform'], $users->toArray());
+    }
+
+    private function transform($user)
+    {
+        return [
+            'membership_number' => $user['membership_number'],
+            'first_name' => $user['first_name'],
+            'last_name' => $user['last_name'],
+            'email' => $user['email'],
+            'gender' => $user['gender'],
+            'mobile_number' => $user['mobile_number'],
+            'landline_number' => $user['landline_number'],
+            'birthdate' => $user['birthdate'],
+            'marital_status' => $user['marital_status'],
+            'account_status' => $user['account_status'],
+            'created_by' => $user['created_by'],
+            'updated_by' => $user['updated_by'],
+            'deleted_by' => $user['deleted_by'],
+            'created_at' => $user['created_at'],
+            'updated_at' => $user['updated_at']
+        ];
+
     }
 }

@@ -162,6 +162,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Zizaco\Entrust\EntrustServiceProvider::class,
+        Laravel\Passport\PassportServiceProvider::class,
         /*
          * Package Service Providers...
          */
