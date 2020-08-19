@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\HelpCategory;
 use DB;
@@ -17,28 +18,19 @@ class HelpCategoriesController extends ApiController
      */
     public function index()
     {
-        $helpcategories = HelpCategory::all();
+        $limit = Input::get('limit') ?: 3;
+        $helpcategories = HelpCategory::paginate($limit);
+  
         if( ! $helpcategories->count() > 0)
         {
             return $this->respondNoRecord();
         }
 
-        return Response::json([
-
-            'data' => $this->transformCollection($helpcategories)
-
-        ],200);
+        return $this->respondWithPaginator($helpcategories,[
+            'data' => $this->transformWithPaginate($helpcategories)
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -83,16 +75,6 @@ class HelpCategoriesController extends ApiController
         ],200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -127,17 +109,27 @@ class HelpCategoriesController extends ApiController
         $helpcategory->delete();
         return $this->respondSuccess();
     }
-    private function transformCollection($helpcategories)
-    {
-        return array_map([$this, 'transform'], $helpcategories->toArray());
-    }
 
-    private function transform($helpcategory)
+    public function transform($helpcategory)
     {
         return [
             'name' => $helpcategory['name'],
             'description' => $helpcategory['description']
         ];
 
+    }
+    private function transformWithPaginate($helpcategories)
+    {
+        
+        $itemsTransformed = $helpcategories
+            ->getCollection()
+            ->map(function($helpcategory) {
+                return [
+                    'name' => $helpcategory['name'],
+            'description' => $helpcategory['description']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

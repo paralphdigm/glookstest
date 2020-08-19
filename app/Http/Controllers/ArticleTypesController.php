@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\ArticleType;
 use DB;
@@ -17,28 +18,17 @@ class ArticleTypesController extends ApiController
      */
     public function index()
     {
-        $articletypes = ArticleType::all();
+        $limit = Input::get('limit') ?: 3;
+        $articletypes = ArticleType::paginate($limit);
 
         if(! $articletypes->count() > 0)
         {
             return $this->respondNoRecord();
         }
-        return Response::json([
-
-            'data' => $this->transformCollection($articletypes)
-
-        ],200);
+        return $this->respondWithPaginator($articletypes,[
+            'data' => $this->transformWithPaginate($articletypes)
+        ]);
     
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -83,17 +73,6 @@ class ArticleTypesController extends ApiController
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -126,17 +105,27 @@ class ArticleTypesController extends ApiController
         $articletype->delete();
         return $this->respondSuccess();
     }
-    private function transformCollection($articletypes)
-    {
-        return array_map([$this, 'transform'], $articletypes->toArray());
-    }
 
-    private function transform($articletype)
+    public function transform($articletype)
     {
         return [
             'name' => $articletype['name'],
             'description' => $articletype['description']
         ];
 
+    }
+    private function transformWithPaginate($articletypes)
+    {
+        
+        $itemsTransformed = $articletypes
+            ->getCollection()
+            ->map(function($articletype) {
+                return [
+                    'name' => $articletype['name'],
+                    'description' => $articletype['description']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

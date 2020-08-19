@@ -61,4 +61,8 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\SecurityQuestion');
     }
+    public function security_question_users()
+    {
+        return $this->hasMany('App\SecurityQuestionUser');
+    }
 }

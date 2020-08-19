@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\PreferenceCategory;
 use DB;
@@ -17,29 +18,19 @@ class PreferenceCategoriesController extends ApiController
      */
     public function index()
     {
-        $preferencecategories = PreferenceCategory::all();
+        $limit = Input::get('limit') ?: 3;
+        $preferencecategories = PreferenceCategory::paginate($limit);
 
         if( ! $preferencecategories->count() > 0)
         {
             return $this->respondNoRecord();
         }
 
-        return Response::json([
-
-            'data' => $this->transformCollection($preferencecategories)
-
-        ],200);
+        return $this->respondWithPaginator($preferencecategories,[
+            'data' => $this->transformWithPaginate($preferencecategories)
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -80,16 +71,6 @@ class PreferenceCategoriesController extends ApiController
         ],200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -124,17 +105,27 @@ class PreferenceCategoriesController extends ApiController
         $preferencecategory->delete();
         return $this->respondSuccess();
     }
-    private function transformCollection($preferencecategories)
-    {
-        return array_map([$this, 'transform'], $preferencecategories->toArray());
-    }
 
-    private function transform($preferencecategory)
+    public function transform($preferencecategory)
     {
         return [
             'name' => $preferencecategory['name'],
             'description' => $preferencecategory['description']
         ];
 
+    }
+    private function transformWithPaginate($preferencecategories)
+    {
+        
+        $itemsTransformed = $preferencecategories
+            ->getCollection()
+            ->map(function($preferencecategory) {
+                return [
+                    'name' => $preferencecategory['name'],
+                    'description' => $preferencecategory['description']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

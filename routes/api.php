@@ -45,11 +45,11 @@ Route::name('security_question.store')->post('/security_question','SecurityQuest
 Route::name('security_question.update')->put('/security_question/{id}','SecurityQuestionsController@update');
 Route::name('security_question.destroy')->delete('/security_question/{id}','SecurityQuestionsController@destroy');
 
-Route::name('user_security_question.index')->get('/user_security_questions', 'UserSecurityQuestionsController@index');
-Route::name('user_security_question.showUserQuestionAnswers')->get('/user_security_question/{id}', 'UserSecurityQuestionsController@show');
-Route::name('user_security_question.store')->post('/user_security_question','UserSecurityQuestionsController@store');
-Route::name('user_security_question.update')->put('/user_security_question/{id}','UserSecurityQuestionsController@update');
-Route::name('user_security_question.destroy')->delete('/user_security_question/{id}','UserSecurityQuestionsController@destroy');
+Route::name('security_question_user.index')->get('/security_question_users', 'SecurityQuestionUsersController@index');
+Route::name('security_question_user.showQuestionAnswerUsers')->get('/users/{id}/security_questions', 'SecurityQuestionUsersController@showQuestionAnswerUsers');
+Route::name('security_question_user.store')->post('/security_question_user','SecurityQuestionUsersController@store');
+Route::name('security_question_user.update')->put('/security_question_user/{id}','SecurityQuestionUsersController@update');
+Route::name('security_question_user.destroy')->delete('/security_question_user/{id}','SecurityQuestionUsersController@destroy');
 
 Route::name('preference_category.index')->get('/preference_categories', 'PreferenceCategoriesController@index');
 Route::name('preference_category.show')->get('/preference_category/{id}', 'PreferenceCategoriesController@show');

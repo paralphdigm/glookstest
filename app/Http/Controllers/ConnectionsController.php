@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Connection;
 use DB;
@@ -17,17 +18,16 @@ class ConnectionsController extends ApiController
      */
     public function index()
     {
-        $connections = Connection::all();
+        $limit = Input::get('limit') ?: 3;
+        $connections = Connection::paginate($limit);
         if(! $connections->count() > 0)
         {
             return $this->respondNoRecord();
         }
 
-        return Response::json([
-
-            'data' => $this->transformCollection($connections)
-
-        ],200);
+        return $this->respondWithPaginator($connections,[
+            'data' => $this->transformWithPaginate($connections)
+        ]);
     
     }
 
@@ -128,17 +128,26 @@ class ConnectionsController extends ApiController
         $connection->delete();
         return $this->respondSuccess();
     }
-    private function transformCollection($connections)
-    {
-        return array_map([$this, 'transform'], $connections->toArray());
-    }
-
-    private function transform($connection)
+    public function transform($connection)
     {
         return [
             'name' => $connection['name'],
             'description' => $connection['description']
         ];
 
+    }
+    private function transformWithPaginate($connections)
+    {
+        
+        $itemsTransformed = $connections
+            ->getCollection()
+            ->map(function($connection) {
+                return [
+                    'name' => $connection['name'],
+            'description' => $connection['description']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

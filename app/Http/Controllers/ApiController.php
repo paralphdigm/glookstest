@@ -52,12 +52,27 @@ class ApiController extends Controller
     {
         return $this->setStatusCode(422)->respondWithError($message);
     }
-
-
-
-    public function respond($data, $headers = [])
+    public function respondWithPaginator($collection,$data)
     {
-        return Response::json($data, $this->getStatusCode(), $headers);
+        
+        $data = array_merge($data,[
+            'paginator' => [
+                "total_record" => $collection->total(),
+                "total_pages" => ceil($collection->total() / $collection->PerPage()),
+                "per_page" => $collection->perPage(),
+                "current_page" => $collection->currentPage(),
+                "last_page" => $collection->lastPage(),
+                "first_page_url" => $collection->url(1),
+                "next_page_url"=>  $collection->nextPageUrl(),
+                "prev_page_url"=>  $collection->previousPageUrl()
+            ]
+        ]);
+
+        return Response::json([$data],200);
+    }
+    public function respond($data)
+    {
+        return Response::json($data, $this->getStatusCode());
     }
     public function respondWithError($message){
 
@@ -78,5 +93,10 @@ class ApiController extends Controller
                 'status_code' => $this->getStatusCode()
             ]
         ]);
+    }
+
+    public function transformCollection($data)
+    {
+        return array_map([$this, 'transform'], $data->toArray());
     }
 }

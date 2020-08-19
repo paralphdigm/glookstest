@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Policy;
 use DB;
@@ -17,28 +18,18 @@ class PoliciesController extends ApiController
      */
     public function index()
     {
-        $policies = Policy::all();
+        $limit = Input::get('limit') ?: 3;
+        $policies = Policy::paginate($limit);
         if( ! $policies->count() > 0)
         {
             return $this->respondNoRecord();
         }
-        return Response::json([
-
-            'data' => $this->transformCollection($policies)
-
-        ],200);
+        return $this->respondWithPaginator($policies,[
+            'data' => $this->transformWithPaginate($policies)
+        ]);
     
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -80,16 +71,6 @@ class PoliciesController extends ApiController
     
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -126,17 +107,27 @@ class PoliciesController extends ApiController
         $policy->delete();
         return $this->respondSuccess();
     }
-    private function transformCollection($requirements)
-    {
-        return array_map([$this, 'transform'], $requirements->toArray());
-    }
 
-    private function transform($requirement)
+    public function transform($policy)
     {
         return [
-            'title' => $requirement['title'],
-            'content' => $requirement['content']
+            'title' => $policy['title'],
+            'content' => $policy['content']
         ];
 
+    }
+    private function transformWithPaginate($policies)
+    {
+        
+        $itemsTransformed = $policies
+            ->getCollection()
+            ->map(function($policy) {
+                return [
+                    'title' => $policy['title'],
+                    'content' => $policy['content']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

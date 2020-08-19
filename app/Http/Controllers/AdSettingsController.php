@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\AdSetting;
 use DB;
@@ -17,29 +18,17 @@ class AdSettingsController extends ApiController
      */
     public function index()
     {
-        
-        $adsettings = AdSetting::all();
+        $limit = Input::get('limit') ?: 3;
+        $adsettings = AdSetting::paginate($limit);
         if(! $adsettings->count() > 0)
         {
             return $this->respondNoRecord();
         }
 
-        return Response::json([
-
-            'data' => $this->transformCollection($adsettings)
-
-        ],200);
+        return $this->respondWithPaginator($adsettings,[
+            'data' => $this->transformWithPaginate($adsettings)
+        ]);
     
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -76,20 +65,9 @@ class AdSettingsController extends ApiController
             return $this->respondNotFound();
         }
         return Response::json([
-            'data' => $this->transform($requirement->toArray())
+            'data' => $this->transform($adsetting->toArray())
         ],200);
     
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**
@@ -126,17 +104,27 @@ class AdSettingsController extends ApiController
         $adsetting->destroy();
         return $this->respondSuccess();
     }
-    private function transformCollection($adsettings)
-    {
-        return array_map([$this, 'transform'], $adsettings->toArray());
-    }
 
-    private function transform($adsetting)
+    public function transform($adsetting)
     {
         return [
-            'impression_per_dollar' => $adsetting['name'],
-            'reach_per_dollar' => $adsetting['description']
+            'impression_per_dollar' => $adsetting['impression_per_dollar'],
+            'reach_per_dollar' => $adsetting['reach_per_dollar']
         ];
 
+    }
+    private function transformWithPaginate($adsettings)
+    {
+        
+        $itemsTransformed = $adsettings
+            ->getCollection()
+            ->map(function($adsetting) {
+                return [
+                    'impression_per_dollar' => $adsetting['impression_per_dollar'],
+                    'reach_per_dollar' => $adsetting['reach_per_dollar']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

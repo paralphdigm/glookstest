@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\MethodOfContract;
 use DB;
@@ -16,28 +17,17 @@ class MethodOfContractsController extends ApiController
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        $methodofcontracts = MethodOfContract::all();
+    {   
+        $limit = Input::get('limit') ?: 3;
+        $methodofcontracts = MethodOfContract::paginate($limit);
         if( ! $methodofcontracts->count() > 0)
         {
             return $this->respondNoRecord();
         }
 
-        return Response::json([
-
-            'data' => $this->transformCollection($methodofcontracts)
-
-        ],200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return $this->respondWithPaginator($methodofcontracts,[
+            'data' => $this->transformWithPaginate($methodofcontracts)
+        ]);
     }
 
     /**
@@ -80,16 +70,6 @@ class MethodOfContractsController extends ApiController
 
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -124,17 +104,27 @@ class MethodOfContractsController extends ApiController
         $methodofcontract->delete();
         return $this->respondSuccess();
     }
-    private function transformCollection($methodofcontracts)
-    {
-        return array_map([$this, 'transform'], $methodofcontracts->toArray());
-    }
 
-    private function transform($methodofcontract)
+    public function transform($methodofcontract)
     {
         return [
             'name' => $methodofcontract['name'],
             'description' => $methodofcontract['description']
         ];
 
+    }
+    private function transformWithPaginate($methodofcontracts)
+    {
+        
+        $itemsTransformed = $methodofcontracts
+            ->getCollection()
+            ->map(function($methodofcontract) {
+                return [
+                    'name' => $methodofcontract['name'],
+            'description' => $methodofcontract['description']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

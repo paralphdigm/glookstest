@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\User;
 use App\SecurityQuestion;
@@ -18,29 +19,19 @@ class SecurityQuestionsController extends ApiController
      */
     public function index()
     {
-        $securityquestions = SecurityQuestion::all();
+        $limit = Input::get('limit') ?: 3;
+        $securityquestions = SecurityQuestion::paginate($limit);
 
         if( ! $securityquestions->count() > 0)
         {
             return $this->respondNoRecord();
         }
 
-        return Response::json([
-
-            'data' => $this->transformCollection($securityquestions)
-
-        ],200);
+        return $this->respondWithPaginator($securityquestions,[
+            'data' => $this->transformWithPaginate($securityquestions)
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -62,6 +53,7 @@ class SecurityQuestionsController extends ApiController
 
         return $this->respondAccepted();
     }
+    
 
     /**
      * Display the specified resource.
@@ -81,16 +73,6 @@ class SecurityQuestionsController extends ApiController
         ],200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -125,17 +107,27 @@ class SecurityQuestionsController extends ApiController
         $securityquestion->delete();
         return $this->respondSuccess();
     }
-    private function transformCollection($securityquestions)
-    {
-        return array_map([$this, 'transform'], $securityquestions->toArray());
-    }
 
-    private function transform($securityquestion)
+    public function transform($securityquestion)
     {
         return [
             'question' => $securityquestion['question'],
             'description' => $securityquestion['description']
         ];
 
+    }
+    private function transformWithPaginate($securityquestions)
+    {
+        
+        $itemsTransformed = $securityquestions
+            ->getCollection()
+            ->map(function($securityquestion) {
+                return [
+                    'question' => $securityquestion['question'],
+                    'description' => $securityquestion['description']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

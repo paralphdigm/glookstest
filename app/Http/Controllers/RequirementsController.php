@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Requirement;
 use DB;
@@ -17,28 +18,16 @@ class RequirementsController extends ApiController
     }
     public function index()
     {   
-        $requirements = Requirement::all();
+        $limit = Input::get('limit') ?: 3;
+        $requirements = Requirement::paginate($limit);
 
         if( ! $requirements->count() > 0)
         {
             return $this->respondNoRecord();
         }
-
-        return Response::json([
-
-            'data' => $this->transformCollection($requirements)
-
-        ],200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return $this->respondWithPaginator($requirements,[
+            'data' => $this->transformWithPaginate($requirements)
+        ]);
     }
 
     /**
@@ -87,17 +76,6 @@ class RequirementsController extends ApiController
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -135,11 +113,6 @@ class RequirementsController extends ApiController
         return $this->respondSuccess();
     }
 
-    private function transformCollection($requirements)
-    {
-        return array_map([$this, 'transform'], $requirements->toArray());
-    }
-
     private function transform($requirement)
     {
         return [
@@ -147,5 +120,20 @@ class RequirementsController extends ApiController
             'description' => $requirement['description']
         ];
 
+    }
+    private function transformWithPaginate($requirements)
+    {
+        
+        $itemsTransformed = $requirements
+            ->getCollection()
+            ->map(function($requirement) {
+
+                return [
+                    'name' => $requirement['name'],
+                    'description' => $requirement['description']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

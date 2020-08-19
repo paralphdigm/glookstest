@@ -20,7 +20,7 @@ class CreateSecurityQuestionsTable extends Migration
             $table->timestamps();
         });
 
-        Schema::create('security_question_user', function (Blueprint $table) {
+        Schema::create('security_question_users', function (Blueprint $table) {
             $table->integer('user_id');
             $table->integer('security_question_id');
             $table->string('answer');
@@ -37,6 +37,6 @@ class CreateSecurityQuestionsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('security_questions');
-        Schema::dropIfExists('user_security_question');
+        Schema::dropIfExists('security_question_users');
     }
 }
