@@ -47,8 +47,8 @@ Route::name('security_question.destroy')->delete('/security_question/{id}','Secu
 
 Route::name('security_question_user.index')->get('/security_question_users', 'SecurityQuestionUsersController@index');
 Route::name('security_question_user.showQuestionAnswerUsers')->get('/users/{id}/security_questions', 'SecurityQuestionUsersController@showQuestionAnswerUsers');
-Route::name('security_question_user.store')->post('/security_question_user','SecurityQuestionUsersController@store');
-Route::name('security_question_user.update')->put('/security_question_user/{id}','SecurityQuestionUsersController@update');
+Route::name('security_question_user.store')->post('/users/{id}/security_questions','SecurityQuestionUsersController@store');
+Route::name('security_question_user.update')->put('/users/{id}/security_questions','SecurityQuestionUsersController@update');
 Route::name('security_question_user.destroy')->delete('/security_question_user/{id}','SecurityQuestionUsersController@destroy');
 
 Route::name('preference_category.index')->get('/preference_categories', 'PreferenceCategoriesController@index');
@@ -101,9 +101,28 @@ Route::name('requirement.destroy')->delete('/requirement/{id}','RequirementsCont
 
 Route::name('user_addresses.index')->get('/user_addresses', 'UserAddressesController@index');
 Route::name('user_address.show')->get('/user_address/{id}', 'UserAddressesController@show');
-Route::name('user_address.showUserAddresses')->get('/user_addresses/{id}', 'UserAddressesController@showUserAddresses');
+Route::name('user_address.showUserAddresses')->get('/users/{id}/user_addresses', 'UserAddressesController@showUserAddresses');
 Route::name('user_address.store')->post('/user_address','UserAddressesController@store');
 Route::name('user_address.update')->put('/user_address/{id}','UserAddressesController@update');
 Route::name('user_address.destroy')->delete('/user_address/{id}','UserAddressesController@destroy');
 
+Route::name('size_category.index')->get('/size_categories', 'SizeCategoriesController@index');
+Route::name('size_category.show')->get('/size_category/{id}', 'SizeCategoriesController@show');
+Route::name('size_category.showCategorySizeTypes')->get('/size_categories/{id}/size_types', 'SizeCategoriesController@showCategorySizeTypes');
+Route::name('size_category.store')->post('/size_category','SizeCategoriesController@store');
+Route::name('size_category.update')->put('/size_category/{id}','SizeCategoriesController@update');
+Route::name('size_category.destroy')->delete('/size_category/{id}','SizeCategoriesController@destroy');
+
+Route::name('size_type_category.index')->get('/size_type_categories', 'SizeTypeCategoriesController@index');
+Route::name('size_type_category.show')->get('/size_type_category/{id}', 'SizeTypeCategoriesController@show');
+Route::name('size_type_category.store')->post('/size_type_category','SizeTypeCategoriesController@store');
+Route::name('size_type_category.update')->put('/size_type_category/{id}','SizeTypeCategoriesController@update');
+Route::name('size_type_category.destroy')->delete('/size_type_category/{id}','SizeTypeCategoriesController@destroy');
+
+Route::name('size_type_category_user.index')->get('/size_type_category_user', 'SizeTypeCategoryUsersController@index');
+Route::name('size_type_category_user.show')->get('/size_type_category_user/{id}', 'SizeTypeCategoryUsersController@show');
+Route::name('size_type_category_user.showUserSizes')->get('/users/{id}/sizes','SizeTypeCategoryUsersController@showUserSizes');
+Route::name('size_type_category_user.store')->post('/users/{id}/sizes','SizeTypeCategoryUsersController@store');
+Route::name('size_type_category_user.update')->put('/users/{id}/sizes','SizeTypeCategoryUsersController@update');
+Route::name('size_type_category_user.destroy')->delete('/size_type_category_user/{id}','SizeTypeCategoryUsersController@destroy');
 

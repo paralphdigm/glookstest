@@ -99,4 +99,8 @@ class ApiController extends Controller
     {
         return array_map([$this, 'transform'], $data->toArray());
     }
+    public function transformCollectionAlt($data)
+    {
+        return array_map([$this, 'transformAlt'], $data->toArray());
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\User;
 use App\Http\Requests;
@@ -21,28 +22,17 @@ class UserController extends ApiController
      */
     public function index()
     {
-        $users = User::all();
 
-        if( ! $users->count() > 0)
+        $limit = Input::get('limit') ?: 10;
+        $users = User::paginate($limit);
+        if(! $users->count() > 0)
         {
             return $this->respondNoRecord();
         }
 
-        return Response::json([
-
-            'data' => $this->transformCollection($users)
-
+        return $this->respondWithPaginator($users,[
+            'data' => $this->transformWithPaginate($users)
         ],200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -137,6 +127,7 @@ class UserController extends ApiController
         return Response::json([
             'data' => $this->transform($user->toArray())
         ],200);
+        
     }
     public function login(Request $request)
     {
@@ -158,17 +149,6 @@ class UserController extends ApiController
         $accesstoken = Auth::user()->createToken('authToken')->accessToken;
 
         return response(['user' => Auth::user(),'access_token' => $accesstoken]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**
@@ -224,12 +204,8 @@ class UserController extends ApiController
         $user->delete();
         return $this->respondSuccess();
     }
-    private function transformCollection($users)
-    {
-        return array_map([$this, 'transform'], $users->toArray());
-    }
 
-    private function transform($user)
+    public function transform($user)
     {
         return [
             'membership_number' => $user['membership_number'],
@@ -249,5 +225,32 @@ class UserController extends ApiController
             'updated_at' => $user['updated_at']
         ];
 
+    }
+    private function transformWithPaginate($users)
+    {
+        
+        $itemsTransformed = $users
+            ->getCollection()
+            ->map(function($user) {
+                return [
+                    'membership_number' => $user['membership_number'],
+                    'first_name' => $user['first_name'],
+                    'last_name' => $user['last_name'],
+                    'email' => $user['email'],
+                    'gender' => $user['gender'],
+                    'mobile_number' => $user['mobile_number'],
+                    'landline_number' => $user['landline_number'],
+                    'birthdate' => $user['birthdate'],
+                    'marital_status' => $user['marital_status'],
+                    'account_status' => $user['account_status'],
+                    'created_by' => $user['created_by'],
+                    'updated_by' => $user['updated_by'],
+                    'deleted_by' => $user['deleted_by'],
+                    'created_at' => $user['created_at'],
+                    'updated_at' => $user['updated_at']
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\UserAddress;
 use App\User;
@@ -17,27 +18,17 @@ class UserAddressesController extends ApiController
      */
     public function index()
     {
-        $useraddresses = UserAddress::all();
+        $limit = Input::get('limit') ?: 20;
+        $useraddresses = SecurityQuestionUser::paginate($limit);
+
         if( ! $useraddresses->count() > 0)
         {
             return $this->respondNoRecord();
         }
-        return Response::json([
-
-            'data' => $this->transformCollection($useraddresses)
-
+        return $this->respondWithPaginator($useraddresses,[
+            'data' => $this->transformWithPaginate($useraddresses)
         ],200);
-    
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -117,16 +108,6 @@ class UserAddressesController extends ApiController
     
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -146,7 +127,7 @@ class UserAddressesController extends ApiController
         $user = User::where('id',$input['user_id'])->get();
 
         if(! $user->count() > 0){
-            return $this->respondInvalid('User ID is does not exist');
+            return $this->respondInvalid('User is does not exist');
         }
         $useraddress->fill($input)->save();
         return $this->respondSuccess();
@@ -168,12 +149,8 @@ class UserAddressesController extends ApiController
         $useraddress->delete();
         return $this->respondSuccess();
     }
-    private function transformCollection($useraddresses)
-    {
-        return array_map([$this, 'transform'], $useraddresses->toArray());
-    }
 
-    private function transform($useraddress)
+    public function transform($useraddress)
     {
         return [
             'house_number' => $useraddress['house_number'],
@@ -184,5 +161,23 @@ class UserAddressesController extends ApiController
             'country' => $useraddress['country'],
         ];
 
+    }
+    private function transformWithPaginate($useraddresses)
+    {
+        
+        $itemsTransformed = $useraddresses
+            ->getCollection()
+            ->map(function($useraddress) {
+                return [
+                    'house_number' => $useraddress['house_number'],
+                    'address_line_1' => $useraddress['address_line_1'],
+                    'address_line_2' => $useraddress['address_line_2'],
+                    'city' => $useraddress['city'],
+                    'post_code' => $useraddress['post_code'],
+                    'country' => $useraddress['country'],
+                ];
+        })->toArray();
+
+        return $itemsTransformed;
     }
 }

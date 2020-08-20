@@ -25,6 +25,12 @@ class CreateSecurityQuestionsTable extends Migration
             $table->integer('security_question_id');
             $table->string('answer');
             $table->primary(['user_id', 'security_question_id']);
+
+            $table->foreign('user_id')->references('id')->on('users')
+                ->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('security_question_id')->references('id')->on('security_questions')
+                ->onUpdate('cascade')->onDelete('cascade');
+                
             $table->timestamps();
         });
     }

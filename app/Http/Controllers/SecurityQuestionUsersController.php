@@ -20,7 +20,7 @@ class SecurityQuestionUsersController extends ApiController
      */
     public function index()
     {
-        $limit = Input::get('limit') ?: 3;
+        $limit = Input::get('limit') ?: 20;
         $usersecurityquestions = SecurityQuestionUser::paginate($limit);
 
         if( ! $usersecurityquestions->count() > 0)
@@ -40,16 +40,13 @@ class SecurityQuestionUsersController extends ApiController
 
     public function store(Request $request)
     {
-        if(! $request['security_question_id'] or ! $request['user_id'] or ! $request['answer'])
-        {
-            return $this->respondInvalid();
+        foreach ($request->security_questions as $key => $value) {
+            SecurityQuestionUser::create([
+                'user_id' => $value['user_id'],
+                'security_question_id' => $value['security_question_id'],
+                'answer' => $value['answer'],
+            ])->save();
         }
-        $usersecurityquestion = new SecurityQuestionUser();
-        $usersecurityquestion->user_id = $request->input('user_id');
-        $usersecurityquestion->security_question_id = $request->input('security_question_id');
-        $usersecurityquestion->answer = $request->input('answer');
-        $usersecurityquestion->save();
-
         return $this->respondAccepted();
     }
 
@@ -59,20 +56,14 @@ class SecurityQuestionUsersController extends ApiController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
     public function showQuestionAnswerUsers($id = null)
     {
-        $usersecurityquestions = $id ? User::find($id)->security_question_users : SecurityQuestion::all();
-        
-        return $this->respondWithPaginator($usersecurityquestions,[
-            'data' => $this->transformWithPaginate($usersecurityquestions)
+        $limit = Input::get('limit') ?: 20;
+        $usersecurityquestions = $id ? User::find($id)->security_question_users : SecurityQuestion::paginate($limit);
+ 
+        return response()->json([
+            'data' => $this->transformCollection($usersecurityquestions),
         ]);
-        // return response()->json([
-        //     'data' => $this->transformCollection($usersecurityquestions),
-        // ]);
     }
 
     /**
@@ -84,27 +75,21 @@ class SecurityQuestionUsersController extends ApiController
      */
     public function update(Request $request, $id)
     {
-        $policy = Policy::find($id);
 
-        if(! $policy){
-            return $this->respondNotFound();
-        } 
-        $input = $request->all();
-        $policy->fill($input)->save();
-
+        DB::table("security_question_users")->where("security_question_users.user_id",$id)
+            ->delete();
+        
+        foreach ($request->security_questions as $key => $value) {
+            SecurityQuestionUser::create([
+                'user_id' => $value['user_id'],
+                'security_question_id' => $value['security_question_id'],
+                'answer' => $value['answer'],
+            ])->save();
+        }
         return $this->respondSuccess();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
+
     public function transform($usersecurityquestion)
     {
         $securityquestionid = $usersecurityquestion['security_question_id'];

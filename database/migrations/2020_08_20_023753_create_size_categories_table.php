@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUserSizesTable extends Migration
+class CreateSizeCategoriesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,10 @@ class CreateUserSizesTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_sizes', function (Blueprint $table) {
+        Schema::create('size_categories', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('user_id')->unsigned();
-            $table->string('user_size');
-            $table->foreign('user_id')->references('id')->on('users')
-                ->onUpdate('cascade')->onDelete('cascade');
-
+            $table->string('name');
+            $table->string('description');
             $table->timestamps();
         });
     }
@@ -31,6 +28,6 @@ class CreateUserSizesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_sizes');
+        Schema::dropIfExists('size_categories');
     }
 }

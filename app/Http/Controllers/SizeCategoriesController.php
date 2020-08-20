@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
-use App\HelpCategory;
+use App\SizeCategory;
+use App\SizeTypeCategory;
 use DB;
 use App\Http\Requests;
 
-class HelpCategoriesController extends ApiController
+class SizeCategoriesController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -19,19 +20,18 @@ class HelpCategoriesController extends ApiController
     public function index()
     {
         $limit = Input::get('limit') ?: 10;
-        $helpcategories = HelpCategory::paginate($limit);
-  
-        if( ! $helpcategories->count() > 0)
+        $sizecategories = SizeCategory::paginate($limit);
+        if(! $sizecategories->count() > 0)
         {
             return $this->respondNoRecord();
         }
 
-        return $this->respondWithPaginator($helpcategories,[
-            'data' => $this->transformWithPaginate($helpcategories)
+        return $this->respondWithPaginator($sizecategories,[
+            'data' => $this->transformWithPaginate($sizecategories)
         ]);
     }
 
-
+  
     /**
      * Store a newly created resource in storage.
      *
@@ -49,7 +49,7 @@ class HelpCategoriesController extends ApiController
             'description' => 'required|string'
         ]);
 
-        HelpCategory::create([
+        SizeCategory::create([
                 'name' => $data['name'],
                 'description' => $data['description'],
         ])->save();
@@ -65,17 +65,25 @@ class HelpCategoriesController extends ApiController
      */
     public function show($id)
     {
-        $helpcategory = HelpCategory::find($id);
-        if(! $helpcategory){
+        $sizecategory = SizeCategory::find($id);
+        if(! $sizecategory){
             return $this->respondNotFound('Record does not exist');
 
         }
         return Response::json([
-            'data' => $this->transform($helpcategory->toArray())
+            'data' => $this->transform($sizecategory->toArray())
         ],200);
+
     }
-
-
+    public function showCategorySizeTypes($id = null)
+    {
+        $limit = Input::get('limit') ?: 20;
+        $sizetypecategories = $id ? SizeCategory::find($id)->size_type_categories : SizeCategory::paginate($limit);
+        
+        return response()->json([
+            'data' => $this->transformCollectionAlt($sizetypecategories),
+        ]);
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -85,12 +93,12 @@ class HelpCategoriesController extends ApiController
      */
     public function update(Request $request, $id)
     {
-        $helpcategory = HelpCategory::find($id); 
-        if(! $helpcategory){
+        $sizecategory = SizeCategory::find($id); 
+        if(! $sizecategory){
             return $this->respondNotFound();
         }
         $input = $request->all();
-        $helpcategory->fill($input)->save();
+        $sizecategory->fill($input)->save();
         return $this->respondSuccess();
     }
 
@@ -102,31 +110,42 @@ class HelpCategoriesController extends ApiController
      */
     public function destroy($id)
     {
-        $helpcategory = HelpCategory::find($id);
-        if(! $helpcategory){
+        $sizecategory = SizeCategory::find($id);
+        if(! $sizecategory){
             return $this->respondNotFound();
         } 
-        $helpcategory->delete();
+        $sizecategory->delete();
         return $this->respondSuccess();
     }
-
-    public function transform($helpcategory)
+    public function transform($sizecategory)
     {
         return [
-            'name' => $helpcategory['name'],
-            'description' => $helpcategory['description']
+            'name' => $sizecategory['name'],
+            'description' => $sizecategory['description']
         ];
 
     }
-    private function transformWithPaginate($helpcategories)
+    public function transformAlt($sizecategory)
+    {
+        $categoryid = $sizecategory['size_category_id'];
+        $category = SizeCategory::find($categoryid);
+        
+        return [
+            'name' => $category['name'],
+            'size' => $sizecategory['size']
+        ];
+
+    }
+   
+    private function transformWithPaginate($sizecategories)
     {
         
-        $itemsTransformed = $helpcategories
+        $itemsTransformed = $sizecategories
             ->getCollection()
-            ->map(function($helpcategory) {
+            ->map(function($sizecategory) {
                 return [
-                    'name' => $helpcategory['name'],
-            'description' => $helpcategory['description']
+                    'name' => $sizecategory['name'],
+                    'description' => $sizecategory['description']
                 ];
         })->toArray();
 

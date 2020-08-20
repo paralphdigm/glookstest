@@ -18,7 +18,7 @@ class AdSettingsController extends ApiController
      */
     public function index()
     {
-        $limit = Input::get('limit') ?: 3;
+        $limit = Input::get('limit') ?: 10;
         $adsettings = AdSetting::paginate($limit);
         if(! $adsettings->count() > 0)
         {
