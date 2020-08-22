@@ -40,14 +40,31 @@ class SecurityQuestionUsersController extends ApiController
 
     public function store(Request $request)
     {
+        
         foreach ($request->security_questions as $key => $value) {
-            SecurityQuestionUser::create([
-                'user_id' => $value['user_id'],
-                'security_question_id' => $value['security_question_id'],
-                'answer' => $value['answer'],
-            ])->save();
+
+            $securityquestionid = $value['security_question_id'];
+            $user = $value['user_id'];
+            $answer = $value['answer'];
+            
+            $checker = SecurityQuestionUser::where([
+                ['user_id', $user],
+                ['security_question_id', $securityquestionid],
+                ['answer', $answer],
+            ])->get();
+
+            if(! $checker->count() > 0){
+                SecurityQuestionUser::create([
+                    'user_id' => $value['user_id'],
+                    'security_question_id' => $value['security_question_id'],
+                    'answer' => $value['answer'],
+                ])->save();
+                
+                return $this->respondAccepted();
+            }
+            return $this->respondInvalid('Duplicate Entry');
         }
-        return $this->respondAccepted();
+        
     }
 
     /**

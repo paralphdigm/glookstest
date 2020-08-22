@@ -11,4 +11,8 @@ class PreferenceCategory extends Model
         'description',
 
     ];
+    public function communication_preferences()
+    {
+        return $this->hasMany('App\CommunicationPreference');
+    }
 }

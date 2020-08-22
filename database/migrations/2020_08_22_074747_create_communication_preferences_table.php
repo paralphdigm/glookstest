@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSizeTypeCategoriesTable extends Migration
+class CreateCommunicationPreferencesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,15 @@ class CreateSizeTypeCategoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('size_type_categories', function (Blueprint $table) {
+        Schema::create('communication_preferences', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('size_category_id')->unsigned();;
-            $table->string('size');
+            $table->integer('preference_category_id')->unsigned();;
+            $table->string('name');
             $table->timestamps();
 
-            $table->foreign('size_category_id')->references('id')->on('size_categories')
+            $table->foreign('preference_category_id')->references('id')->on('preference_categories')
                 ->onUpdate('cascade')->onDelete('cascade');
         });
-        
     }
 
     /**
@@ -32,6 +31,6 @@ class CreateSizeTypeCategoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('size_type_categories');
+        Schema::dropIfExists('communication_preferences');
     }
 }

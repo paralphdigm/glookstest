@@ -47,7 +47,7 @@ class SizeTypeCategoriesController extends ApiController
         $sizecategory = SizeCategory::where('id',$data['size_category_id'])->get();
       
         if(! $sizecategory->count() > 0){
-            return $this->respondInvalid('User ID is does not exist');
+            return $this->respondInvalid('Size Category ID does not exist');
         }
         SizeTypeCategory::create([
             'size_category_id' => $data['size_category_id'],

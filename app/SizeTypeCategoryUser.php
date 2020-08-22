@@ -11,4 +11,12 @@ class SizeTypeCategoryUser extends Model
         'size_type_category_id',
 
     ];
+    public function size_type_categories()
+    {
+        return $this->belongsTo('App\SizeTypeCategory');
+    }
+    public function users()
+    {
+        return $this->belongsTo('App\User');
+    }
 }

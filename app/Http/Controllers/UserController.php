@@ -106,7 +106,9 @@ class UserController extends ApiController
         if ($verification->valid) {
             $user = tap(User::where('mobile_number', $data['mobile_number']))->update(['verification_code_status' => 'active']);
             /* Authenticate user */
-            Auth::login($user->first());
+            // Auth::login($user->first());
+
+            
             return $this->respondAccepted();
         }
         return $this->respondInvalid();

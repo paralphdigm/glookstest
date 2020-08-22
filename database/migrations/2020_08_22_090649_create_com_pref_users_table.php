@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSizeTypeCategoryUsersTable extends Migration
+class CreateComPrefUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,15 +13,15 @@ class CreateSizeTypeCategoryUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('size_type_category_users', function (Blueprint $table) {
+        Schema::create('com_pref_users', function (Blueprint $table) {
             $table->integer('user_id')->unsigned();;
-            $table->integer('size_type_category_id')->unsigned();;
-            $table->primary(['user_id', 'size_type_category_id']);
+            $table->integer('communication_preference_id')->unsigned();;
+            $table->primary(['user_id', 'communication_preference_id']);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')
                 ->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('size_type_category_id')->references('id')->on('size_type_categories')
+            $table->foreign('communication_preference_id','com_pref_id')->references('id')->on('communication_preferences')
                 ->onUpdate('cascade')->onDelete('cascade');
         });
     }
@@ -33,6 +33,6 @@ class CreateSizeTypeCategoryUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('size_type_category_users');
+        Schema::dropIfExists('com_pref_users');
     }
 }

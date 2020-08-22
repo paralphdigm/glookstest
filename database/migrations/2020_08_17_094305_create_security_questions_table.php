@@ -21,8 +21,8 @@ class CreateSecurityQuestionsTable extends Migration
         });
 
         Schema::create('security_question_users', function (Blueprint $table) {
-            $table->integer('user_id');
-            $table->integer('security_question_id');
+            $table->integer('user_id')->unsigned();;
+            $table->integer('security_question_id')->unsigned();;
             $table->string('answer');
             $table->primary(['user_id', 'security_question_id']);
 

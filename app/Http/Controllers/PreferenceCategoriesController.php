@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\PreferenceCategory;
+use App\CommunicationPreference;
 use DB;
 use App\Http\Requests;
 
@@ -71,7 +72,15 @@ class PreferenceCategoriesController extends ApiController
         ],200);
     }
 
-
+    public function showCommucationPreferences($id = null)
+    {
+        $limit = Input::get('limit') ?: 20;
+        $preferencecategories = $id ? PreferenceCategory::find($id)->communication_preferences : PreferenceCategory::paginate($limit);
+        
+        return response()->json([
+            'data' => $this->transformCollectionAlt($preferencecategories),
+        ]);
+    }
     /**
      * Update the specified resource in storage.
      *
@@ -111,6 +120,17 @@ class PreferenceCategoriesController extends ApiController
         return [
             'name' => $preferencecategory['name'],
             'description' => $preferencecategory['description']
+        ];
+
+    }
+    public function transformAlt($preferencecategory)
+    {
+        $categoryid = $preferencecategory['preference_category_id'];
+        $category = PreferenceCategory::find($categoryid);
+        
+        return [
+            'category' => $category['name'],
+            'communication_preference' => $preferencecategory['name']
         ];
 
     }

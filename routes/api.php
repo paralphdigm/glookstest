@@ -51,12 +51,6 @@ Route::name('security_question_user.store')->post('/users/{id}/security_question
 Route::name('security_question_user.update')->put('/users/{id}/security_questions','SecurityQuestionUsersController@update');
 Route::name('security_question_user.destroy')->delete('/security_question_user/{id}','SecurityQuestionUsersController@destroy');
 
-Route::name('preference_category.index')->get('/preference_categories', 'PreferenceCategoriesController@index');
-Route::name('preference_category.show')->get('/preference_category/{id}', 'PreferenceCategoriesController@show');
-Route::name('preference_category.store')->post('/preference_category','PreferenceCategoriesController@store');
-Route::name('preference_category.update')->put('/preference_category/{id}','PreferenceCategoriesController@update');
-Route::name('preference_category.destroy')->delete('/preference_category/{id}','PreferenceCategoriesController@destroy');
-
 Route::name('method_of_contract.index')->get('/method_of_contracts', 'MethodOfContractsController@index');
 Route::name('method_of_contract.show')->get('/method_of_contract/{id}', 'MethodOfContractsController@show');
 Route::name('method_of_contract.store')->post('/method_of_contract','MethodOfContractsController@store');
@@ -125,4 +119,18 @@ Route::name('size_type_category_user.showUserSizes')->get('/users/{id}/sizes','S
 Route::name('size_type_category_user.store')->post('/users/{id}/sizes','SizeTypeCategoryUsersController@store');
 Route::name('size_type_category_user.update')->put('/users/{id}/sizes','SizeTypeCategoryUsersController@update');
 Route::name('size_type_category_user.destroy')->delete('/size_type_category_user/{id}','SizeTypeCategoryUsersController@destroy');
+
+Route::name('preference_category.index')->get('/preference_categories', 'PreferenceCategoriesController@index');
+Route::name('preference_category.show')->get('/preference_category/{id}', 'PreferenceCategoriesController@show');
+Route::name('preference_category.showCategorySizeTypes')->get('/preference_categories/{id}/communication_preferences', 'PreferenceCategoriesController@showCommucationPreferences');
+Route::name('preference_category.store')->post('/preference_category','PreferenceCategoriesController@store');
+Route::name('preference_category.update')->put('/preference_category/{id}','PreferenceCategoriesController@update');
+Route::name('preference_category.destroy')->delete('/preference_category/{id}','PreferenceCategoriesController@destroy');
+
+Route::name('communication_preference.index')->get('/communication_preferences', 'CommunicationPreferencesController@index');
+Route::name('communication_preference.show')->get('/communication_preference/{id}', 'CommunicationPreferencesController@show');
+Route::name('communication_preference.store')->post('/communication_preference','CommunicationPreferencesController@store');
+Route::name('communication_preference.update')->put('/communication_preference/{id}','CommunicationPreferencesController@update');
+Route::name('communication_preference.destroy')->delete('/communication_preference/{id}','CommunicationPreferencesController@destroy');
+
 

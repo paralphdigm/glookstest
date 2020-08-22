@@ -65,4 +65,8 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\SecurityQuestionUser');
     }
+    public function size_type_category_users()
+    {
+        return $this->hasMany('App\SizeTypeCategoryUser');
+    }
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\SizeTypeCategoryUser;
 use App\SizeTypeCategory;
+use App\SizeCategory;
 use App\User;
 use DB;
 use App\Http\Requests;
@@ -73,8 +74,9 @@ class SizeTypeCategoryUsersController extends ApiController
     public function showUserSizes($id = null)
     {
         $limit = Input::get('limit') ?: 20;
-        $sizetypecategoryusers = $id ? User::find($id)->size_type_category_users : SizeTypeCategory::paginate($limit);
+        $sizetypecategoryusers = $id ? User::find($id)->size_type_category_users : SizeCategory::paginate($limit);
 
+        // return response()->json($sizetypecategoryusers);
         return response()->json([
             'data' => $this->transformCollection($sizetypecategoryusers),
         ]);
@@ -106,20 +108,19 @@ class SizeTypeCategoryUsersController extends ApiController
     {
         $sizetypecategoryid = $sizetypecategoryusers['size_type_category_id'];
         $sizetypecategory = SizeTypeCategory::find($sizetypecategoryid);
-
+ 
         $sizecategoryid = $sizetypecategory['size_category_id'];
         $sizecategory = SizeCategory::find($sizecategoryid);
+        
+        $userid = $sizetypecategoryusers['user_id'];
+        $user = User::find($userid);
 
             return [
-                'user' => $sizetypecategoryusers['membership_number'],
-                'size' => $sizetypecategory['name'],
+                'user' => $user['membership_number'],
+                'size' => $sizetypecategory['size'],
                 'category' => $sizecategory['name'],
             ];
 
-    }
-    public function transformCollection($data)
-    {
-        return array_map([$this, 'transform'], $data->toArray());
     }
     private function transformWithPaginate($sizetypecategoryusers)
     {
@@ -134,11 +135,11 @@ class SizeTypeCategoryUsersController extends ApiController
                 $sizecategoryid = $sizetypecategory['size_category_id'];
                 $sizecategory = SizeCategory::find($sizecategoryid);
 
-                $user = $sizetypecategoryuser['user_id'];
-                $userid = User::find($user);
+                $userid = $sizetypecategoryuser['user_id'];
+                $user = User::find($user);
 
                 return [
-                    'user' => $userid['membership_number'],
+                    'user' => $user['membership_number'],
                     'size' => $sizetypecategory['name'],
                     'category' => $sizecategory['name'],
                 ];
